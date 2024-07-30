@@ -1,0 +1,72 @@
+services:
+  database:
+    image: postgres
+    container_name: postgres_compose
+    environment:
+      POSTGRES_DB: ggdb
+      POSTGRES_USER: gg
+      POSTGRES_PASSWORD: gg
+    ports: 
+      - "5555:5432"
+    volumes: 
+      - homework_volume:/var/lib/postgresql/data
+    networks:
+      - homework_network
+
+  spring:
+    build: .
+    image: spring-app-homework:latest
+    container_name: spring-homework-compose
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres_compose:5432/ggdb
+      SPRING_DATASOURCE_USERNAME: gg
+      SPRING_DATASOURCE_PASSWORD: gg
+    depends_on:
+      - database
+    networks:
+      - homework_network
+    ports:
+      - "8089:8080"
+
+  rabbit:
+    image: rabbitmq:4.0.0-beta.3-management-alpine
+    container_name: rabbit_mq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  database2:
+    image: postgres
+    container_name: postgres_key_cloack
+    environment:
+      POSTGRES_DB: ggkeycloack
+      POSTGRES_USER: kk
+      POSTGRES_PASSWORD: kk
+    ports: 
+      - "6666:5432"
+    volumes: 
+      - homework_keycloack_volume:/var/lib/postgresql/data
+    networks:
+      - homework_network
+
+  keycloack:
+    image: quay.io/keycloak/keycloak:23.0.6
+    container_name: keycloak
+    ports:
+      - "8080:8080"
+      - "8443:8443"
+    volumes: 
+      - homework_keycloack_volume:/var/lib/postgresql/data
+    networks:
+      - homework_network
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: ["start-dev"]
+    restart: unless-stopped
+
+volumes:
+  homework_volume:
+  homework_keycloack_volume:
+networks:
+  homework_network:
