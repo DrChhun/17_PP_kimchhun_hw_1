@@ -62,6 +62,11 @@ services:
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - DB_VENDOR=postgres
+      - DB_ADDR=database2
+      - DB_DATABASE=ggkeycloak
+      - DB_USER=kk
+      - DB_PASSWORD=kk
     command: ["start-dev"]
     restart: unless-stopped
 
